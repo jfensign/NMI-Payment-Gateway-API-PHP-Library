@@ -4,7 +4,7 @@ require_once("classes/NMI-Three-Step-API.class.php");
 if(!empty($_POST)):
 $three_step = nmiThreeStep::__getInstance(array(
 									"user" => null, //User
-									"key" => "API KEY", //API Key
+									"key" => "657MvvHRPquyr44k7A8kE9Gu2N5x58ug", //API Key
 									"gwURI" => "https://secure.nmi.com/api/v2/three-step", //Gateway URI
 									"redirectURI" => "http://localhost/nmi/NMI_FRESH/NMI_FRESH_TWO/checkout.php", //Redirect URI
 									"checkoutURI" => "http://localhost/nmi/NMI_FRESH/NMI_FRESH_TWO/checkout.php",

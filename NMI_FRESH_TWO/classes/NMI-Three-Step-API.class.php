@@ -177,7 +177,7 @@ class nmiThreeStep {
 		if(file_exists($this->__get("StepOneResponseXML"))):
 			$y = $this->__get("StepOneResponseXML");
 			unset($y);
-			extract($files["persistenceMedium"], EXTR_PREFIX_ALL, "NMI_THREE_STEP_");
+			extract($files["persistenceMedium"]);
 			include_once($this->__get("StepTwoFormFile"));
 		endif;
 		
