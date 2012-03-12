@@ -23,11 +23,15 @@ class nmiThreeStep {
 		$this->__set("gatewayURL", $args["gwURI"]);
 		$this->__set("redirectURL", $args["redirectURI"]);
 		
-		if(is_numeric($args["amount"])):
+		//if(is_numeric($args["amount"])):
 			$this->__set("amount", floatval($args["amount"]));
-		endif;
+		//endif;
 		
+		$_SESSION['amount'] = $this->__get("amount");
+		
+		if($args["checkoutURI"] != null):
 		header("Location: " . $args["checkoutURI"]);
+		endif;
 	}
 	
 	// __getInstance creates a Singleton instance and binds itself to 
@@ -67,9 +71,9 @@ class nmiThreeStep {
 		unset($postVals['persistenceMedium']);
 		unset($postVals['transactionType']);
 	
-		include_once($this->__get('StepOneFormFile'));
-		
-		if(!empty($_POST[$postVals["billing"]['submit']])):
+		if($this->__get('StepOneFormFile') != null):
+			include_once($this->__get('StepOneFormFile'));
+		endif;
 
 		$doc = new DOMDocument("1.0", "UTF-8");
 		$doc->formatOutput = TRUE;
@@ -84,12 +88,12 @@ class nmiThreeStep {
 				$redirectURL->appendChild($doc->createTextNode($this->__get("redirectURL")));
 				$type->appendChild($redirectURL);
 			
-			if($this->__get("amount") != FALSE):
+		//	if($this->__get("amount") != FALSE):
 			//REQUIRED FOR TRANSACTIONS	
 			$amount = $doc->createElement("amount");
 				$amount->appendChild($doc->createTextNode($this->__get("amount")));
 				$type->appendChild($amount);
-			endif;
+		//	endif;
 		$doc->appendChild($type);
 		
 		$key = array_keys($postVals);
@@ -148,6 +152,10 @@ class nmiThreeStep {
 			@$responseVals['result-code'] = $tmp->item(0)->nodeValue;
 				$tmp = $doc->getElementsByTagName("form-url");
 			@$responseVals['form-url'] = $tmp->item(0)->nodeValue;
+			
+			$_SESSION['form-url'] = $responseVals['form-url'];
+			print_r($_SESSION);
+			exit();
 		
 		foreach($responseVals as $key => $val) {
 			$this->__set($key, $val);
@@ -165,7 +173,6 @@ class nmiThreeStep {
 			exit("An error occurred. Please try again.");
 		}
 		unset($file);
-		endif;
 	}
 	
 	public function StepTwo($files) {
@@ -175,10 +182,7 @@ class nmiThreeStep {
 		}
 		
 		if(file_exists($this->__get("StepOneResponseXML"))):
-			$y = $this->__get("StepOneResponseXML");
-			unset($y);
-			extract($files["persistenceMedium"]);
-			include_once($this->__get("StepTwoFormFile"));
+			
 		endif;
 		
 		NMI::update(self::$_instance);
@@ -190,7 +194,7 @@ class nmiThreeStep {
 		foreach($files as $key => $val):
 			$this->__set("$key", "$val");
 		endforeach;
-	
+		
 		if(!empty($_GET['token-id'])) {
 			$this->__set("token-id", $_GET['token-id']);
 			
@@ -247,7 +251,12 @@ class nmiThreeStep {
 			NMI::update(self::$_instance);
 			
 			if(intval($this->__get(__FUNCTION__ . 'result')) > 1) {
-				exit($this->__get(__FUNCTION__ . 'result-text'));
+				echo $this->__get(__FUNCTION__ . 'result-text');
+				return FALSE;
+			}
+			else {
+				echo $this->__get(__FUNCTION__ . 'result-text');
+				return TRUE;
 			}
 		}
 	

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <result>1</result>
+  <result-text>SUCCESS</result-text>
+  <transaction-id>1580080978</transaction-id>
+  <result-code>100</result-code>
+  <authorization-code>123456</authorization-code>
+  <avs-result>N</avs-result>
+  <cvv-result>N</cvv-result>
+  <action-type>sale</action-type>
+  <amount>64.81</amount>
+  <ip-address>74.64.106.41</ip-address>
+  <industry>ecommerce</industry>
+  <processor-id>ccprocessora</processor-id>
+  <currency>USD</currency>
+  <tax-amount>0.00</tax-amount>
+  <shipping-amount>0.00</shipping-amount>
+  <billing>
+    <first-name>Brad</first-name>
+    <last-name>Garness</last-name>
+    <address1>jlkjlksfsd</address1>
+    <city>crystal city</city>
+    <state>VA</state>
+    <postal>12324</postal>
+    <country>US</country>
+    <phone>1231231234</phone>
+    <email>bgarness@diamondmindinc.com</email>
+    <cc-number>411111******1111</cc-number>
+    <cc-exp>1212</cc-exp>
+  </billing>
+  <shipping>
+    <first-name>Brad</first-name>
+    <last-name>Garness</last-name>
+    <address1>jlkjlksfsd</address1>
+  </shipping>
+</response>

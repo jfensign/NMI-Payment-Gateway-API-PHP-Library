@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <result>1</result>
+  <result-text>Step 1 completed</result-text>
+  <transaction-id>1580149780</transaction-id>
+  <result-code>100</result-code>
+  <form-url>https://secure.nmi.com/api/v2/three-step/4r0d4i17</form-url>
+</response>
