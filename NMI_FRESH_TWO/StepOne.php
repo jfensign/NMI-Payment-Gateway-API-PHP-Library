@@ -2,30 +2,19 @@
 session_start();
 require_once("classes/NMI-Three-Step-API.class.php");
 
-$three_step = nmiThreeStep::__getInstance(array(
-									"user" => null, //User
-									"key" => "657MvvHRPquyr44k7A8kE9Gu2N5x58ug", //API Key
-									"gwURI" => "https://secure.nmi.com/api/v2/three-step", //Gateway URI
-									"redirectURI" => "http://localhost/nmi/NMI_FRESH/NMI_FRESH_TWO/StepThree.php", //Redirect URI
-									"checkoutURI" => null,
-									"sessionIndex" => "THREE_STEP",
-									"amount" => $_POST['amount'] //Sale Amount ... if NULL, it is assumed that this is a vault action
-								));
-								
-$_SESSION['THREE_STEP'] = serialize($three_step);
+nmiThreeStep::__getInstance(array(
+						"userID" => null, //User
+						"password" => null,
+						"apiKey" => "657MvvHRPquyr44k7A8kE9Gu2N5x58ug", //API Key
+						"gatewayURI" => "https://secure.nmi.com/api/v2/three-step", //Gateway URI
+						"redirectURI" => "http://localhost/donations/StepThree.php", //Redirect URI
+						"amount" => $_POST['amount'] //Sale Amount ... if NULL, it is assumed that this is a vault action
+						));
 ?>
 
 <?php
-$three_step = unserialize($_SESSION["THREE_STEP"]);
-
-$three_step->StepOne( 
+nmiThreeStep::__getInstance()->StepOne( 
 	array(
-		'persistenceMedium' => array(
-					"type" => "file",
-					"StepOneResponseXML" => "StepOneResponse.xml",
-					"StepOneFormVals" => "StepOneFormVals.xml",
-					"StepOneFormFile" => null
-		),
 		'transactionType' => array(
 			'type' => 'sale'
 		),

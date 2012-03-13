@@ -1,11 +1,21 @@
 <?php
-session_start();
 require_once("classes/NMI-Three-Step-API.class.php");
-$three_step = unserialize($_SESSION["THREE_STEP"]);
+$three_step = nmiThreeStep::__getInstance()->StepThree();
 
-$three_step->StepThree(
-		array(
-			"StepThreeResponseXML" => "StepThreeResponse.xml"
-		)
-	);
+var_dump($three_step);
+?>
+
+
+<?php 
+
+	if(isset($_SESSION['StepThree-result'])) {
+		if(intval($_SESSION['StepThree-result']) === 1) {
+			include_once("html/SuccessView.php");
+		} else {
+			header("Location: " . $_SERVER["HTTP_REFERER"]);
+			echo $_SERVER["StepThree-result-text"];
+		}
+	}
+	
+	
 ?>

@@ -1,5 +1,5 @@
-<fieldset>
-		<legend>Shipping and Billing Information</legend>
+<!--<fieldset>
+		<legend>Shipping and Billing Information</legend>-->
 		<form name="gateway_shipping_billing_info" id="shipping_billing_info_form" method="POST" action="<?php echo $_SERVER['PHP_SELF'];?>">
 		
 		<div id="shipping_billing_info_wrap" class="payment_form_field_wrap">
@@ -15,7 +15,7 @@
 		</div>
 		<input type="submit" name="STEP_ONE" value="Proceed to Checkout" />
 		</form>
-</fieldset>
+<!--</fieldset>-->
 
 <script type="text/javascript">
 function persist() {
