@@ -1,6 +1,6 @@
 <?php		
 session_start();
-require_once("classes/NMI-Three-Step-API.class.php");
+require_once("core/NMI-Three-Step-API.class.php");
 $three_step = unserialize($_SESSION["THREE_STEP"]);
 
 

@@ -1,60 +1,64 @@
-<!--<html>
-<head>
-<title>NMI Three-Step API Example</title>
-<script type="text/javascript" src="../js/jquery.js"></script>
-	
-	<script type="text/javascript">
-	
-	/*$(document).ready(function () {
+<?php 
+session_start();
+require_once("../core/NMI-Three-Step-API.class.php");
+$form_url = nmiThreeStep::__getInstance()->StepTwo();
+?>
 
-		$('form').attr("onsubmit", "return false;");
+	<div id="reviewWrap">
+		<div id="reviewWrapChildLeft" class="childReviewDiv">
+		<p>Amount: $<?php echo nmiThreeStep::__getInstance()->__get("amount");?></p>
+		<p>Firstname: <?php echo nmiThreeStep::__getInstance()->__get("first-name");?></p>
+		<p>Lastname: <?php echo nmiThreeStep::__getInstance()->__get("last-name");?></p>
+		<p>Email: <?php echo nmiThreeStep::__getInstance()->__get("email");?></p>
+		<p>Phone: <?php echo nmiThreeStep::__getInstance()->__get("phone");?></p>
+		</div>
 		
-		$('form').submit(function () {
-		
-			var formID = $(this).attr('id');
-			var action = $(this).attr('action');
-			var postData = $(this).serialize();
-			
-			$.ajax({
-				
-				type: "post",
-				url: action,
-				data: postData,
-				success: function(data) {
-					
-				}
-			});
-		});
-	});*/
-	
-	</script>
-</head>
-<body>	-->
-<!--
-<?php require_once("../classes/NMI-Three-Step-API.class.php");?>
--->
-<?php $form_url = nmiThreeStep::__getInstance()->StepTwo();?>
-	
+		<div id="reviewWrapChildRight" class="childReviewDiv">
+		<p>Address: <?php echo nmiThreeStep::__getInstance()->__get("address1");?></p>
+		<p>City: <?php echo nmiThreeStep::__getInstance()->__get("city");?></p>
+		<p>State: <?php echo nmiThreeStep::__getInstance()->__get("state");?></p>
+		<p>Zip Code: <?php echo nmiThreeStep::__getInstance()->__get("postal");?></p>
+		<p>Country: <?php echo nmiThreeStep::__getInstance()->__get("country");?></p>
+		</div>
+	</div>
 	<fieldset>
-		<legend>Payment Information</legend>
 		<form name="payment_info_form" id="payment_info_form" method="POST" action="<?php echo $form_url;?>">
-		<div id="payment_info_wrap" class="payment_form_field_wrap">
 		  <label for="billing-cc-number">Card Number</label><br /><input type="text" name="billing-cc-number" id="payer_card" /><br />
 		  <label for="billing-cc-exp">Expires</label><br /><input type="text" name="billing-cc-exp" id="payer_card_number" /><br />
 		  <label for="billing-cvv">CVV</label><br /><input type="text" name="billing-cvv" id="payer_card_cvv" /><br />
-		</div>
 		<input type="submit" name="STEP_TWO" value="Continue" />
 		</form>
 	</fieldset>
+
 	
 	
 	
 <style type="text/css">
 	
-  form {
-	margin-top: 0;
+
+	fieldset {
+		padding: 0;
+		margin: 0;
+	}
+  .childReviewDiv {
+	width: 165px;
+	height: 165px;
+	float: left;
+	text-align: center;
+  }
+  
+  #reviewWrap {
+	width: 350px;
 	margin-left: auto;
 	margin-right: auto;
+	padding-bottom: 0;
+	margin-bottom: 0;
+  }
+  
+  .childReviewDiv > p{
+	font: 11px Helvetica, Arial, freesans, clean, sans-serif;
+	padding: 0;
+	margin-bottom: -5px;
   }
 
   
@@ -80,11 +84,12 @@ padding-bottom: 7px;
 color: #666;
 background-repeat: no-repeat;
 background-position: right center;
-width: 375px;
+width: 385px;
+margin-left: auto;
+margin-right: auto;
   }
   
-input[type="submit"], input[type="button"]
-{
+input[type="submit"] {
 display: inline-block;
 padding: 8px 15px;
 line-height: normal;
@@ -103,11 +108,19 @@ border: 1px solid #DDD;
 border-bottom-color: #BBB;
 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 cursor: pointer;
-  }
+margin-left: 0;
+margin-top: 10px;
+
+color: white;
+text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+border-color: #74BB5A;
+border-bottom-color: #509338;
+background-color: #8ADD6D;
+background-image: -moz-linear-gradient(#8ADD6D,#60B044);
+background-image: -webkit-linear-gradient(#8ADD6D,#60B044);
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#8add6d',endColorstr='#60b044')";
+box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
 	
 	
 </style>
-<!--
-</body>
-</html>
--->

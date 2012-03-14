@@ -9,6 +9,12 @@ class nmiThreeStep {
 											  "json" => "Content-type: text/json",
 											  "html" => "Content-type: text/html"	
 											);
+	private $ContentType,
+			$StepOneResponse,
+			$StepOneResponseJSON,
+			$StepThreeResponse;
+			
+			
 	public $TransactionType,
 			$Shipping,
 			$Billing,
@@ -17,11 +23,10 @@ class nmiThreeStep {
 			$password,
 			$redirectURI,
 			$gatewayURI,
-			$StepOneResponse,
-			$StepThreeResponse,
 			$formURI,
 			$transactionID,
-			$amount;
+			$amount,
+			$serializedResponse = array();
 
 	public function __construct($initVals) {
 		
@@ -44,11 +49,31 @@ class nmiThreeStep {
 		return nmiCache::Cache()->__cacheGet("ThreeStepInstance");
 	}
 	
-	public function StepOne(array $StepOneVals = NULL) {
+	public function __set($key, $val) {
+		return nmiCache::Cache()->__cacheSet($key, $val);
+	}
+	
+	public function __get($key) {
+		return nmiCache::Cache()->__cacheGet($key);
+	}
+	
+	public function StepOne(array $StepOneVals = NULL, $enc = NULL) {
 		
 		nmiCache::Cache()->__cacheSet("apiKey", $this->apiKey);
 		nmiCache::Cache()->__cacheSet("gatewayURI", $this->gatewayURI);
 		nmiCache::Cache()->__cacheSet("redirectURI", $this->redirectURI);
+		
+		if($enc != NULL):
+			if(array_key_exists($enc, self::$acceptedContentTypes)):
+				$this->ContentType = self::$acceptedContentTypes[$enc];
+			else:
+				$contentTypeErrorList = implode(", " . PHP_EOL, self::$acceptedContentTypes); 
+				throw new Exeption("Not an accepted content type. 
+									Must be one of the following: 
+									$contentTypeErrorList" . 
+									PHP_EOL);
+			endif;
+		endif;
 		
 		if($StepOneVals === NULL): //check that argument is not empty
 			exit(__CLASS__ . "::" . __FUNCTION__ . " requires an array as its argument.");
@@ -87,31 +112,7 @@ class nmiThreeStep {
 		endfor;
 
 		$this->StepOneResponse = $this->execCurl($doc->saveXML(), "xml");
-		
-		$parse = xml_parser_create('UTF-8');
-		$read = xml_parse_into_struct($parse, $this->StepOneResponse, $values, $index);
-		xml_parser_free($parse);
-
-		unset($this->StepOneResponse);
-		
-		for($i=0;$i<count($values);$i++):
-			if(array_key_exists("value", $values[$i])):
-				$this->StepOneResponse[strtolower($values[$i]['tag'])] = $values[$i]['value'];
-			endif;
-		endfor;
-	
-		if(intval($this->StepOneResponse['result']) === 1):
-			nmiCache::Cache()->__cacheSet("form-url", $this->StepOneResponse["form-url"]);
-			nmiCache::Cache()->__cacheSet("transaction-id", $this->StepOneResponse["transaction-id"]);
-			nmiCache::Cache()->__cacheSet(__FUNCTION__ . "Complete", TRUE); //<------ Set Completion +(bool) "StepOneComplete"
-		else:
-			nmiCache::Cache()->__cacheSet("error-result-text", $this->StepOneResponse["result-text"]);
-			nmiCache::Cache()->__cacheSet(__FUNCTION__ . "Complete", FALSE);
-		endif;
-	
-		unset($doc); //CLEAN UP
-		//return nmiCache::Cache()->__cacheGet("error-result-text") === FALSE ? TRUE : FALSE;
-		return $this->StepOneResponse['result'];
+		return $this->returnSerializedResponse($this->StepOneResponse, "json", array("form-url", "token-id"));
 	}
 	
 	public function StepTwo() {
@@ -148,36 +149,55 @@ class nmiThreeStep {
 
 			$this->StepThreeResponse = $this->execCurl($doc->saveXML(), "xml");
 			
-			$parse = xml_parser_create('UTF-8');
-			$read = xml_parse_into_struct($parse, $this->StepThreeResponse, $values, $index);
-			xml_parser_free($parse);
-			
-			unset($this->StepThreeResponse);
-		
-			for($i=0;$i<count($values);$i++):
-				if(array_key_exists("value", $values[$i])):
-					$this->StepThreeResponse[strtolower($values[$i]['tag'])] = $values[$i]['value'];
-				endif;
-			endfor;
-			
-			print_r($this->StepThreeResponse);
-			exit();
-	
-		if(intval($this->StepThreeResponse['result']) === 1):
-			nmiCache::Cache()->__cacheSet("transaction-id", $this->StepThreeResponse["transaction-id"]);
-			nmiCache::Cache()->__cacheSet(__FUNCTION__ . "Complete", TRUE); //<------ Set Completion +(bool) "StepOneComplete"
-		else:
-			nmiCache::Cache()->__cacheSet("error-result-text", $this->StepThreeResponse["result-text"]);
-			nmiCache::Cache()->__cacheSet(__FUNCTION__ . "Complete", FALSE);
-			header("Location: " . $_SERVER["HTTP_REFERER"]);
-		endif;
-	
-		unset($doc); //CLEAN UP
-		echo $this->StepThreeResponse['result'] . "<br />" . $this->StepThreeResponse['result-text'];
+			return $this->returnSerializedResponse($this->StepThreeResponse, "json", "ALL");
 			
 		endif;
 		
 	}
+	
+	public function returnSerializedResponse($content, $ContentType = NULL, $cacheVals = NULL) {
+		
+		if($ContentType === NULL) { //Will return XML
+			return $content;
+		}
+		else {
+		
+			$parse = xml_parser_create('UTF-8');
+			$read = xml_parse_into_struct($parse, $content, $values, $index);
+			xml_parser_free($parse);
+		
+			for($i=0;$i<count($values);$i++):
+				if(array_key_exists("value", $values[$i])):
+				
+					if($cacheVals != NULL):
+						if(is_array($cacheVals)):
+							if(in_array(strtolower($values[$i]['tag']), $cacheVals)):
+								nmiCache::Cache()->__cacheSet(strtolower($values[$i]['tag']), $values[$i]['value']);
+							endif;
+						elseif(is_string($cacheVals)):
+							if($cacheVals == "ALL"):
+								nmiCache::Cache()->__cacheSet(strtolower($values[$i]['tag']), $values[$i]['value']);
+							endif;
+						endif;
+						$this->serializedResponse[strtolower($values[$i]['tag'])] = $values[$i]['value'];
+					endif;
+					
+				endif;
+			endfor;
+			
+			switch($ContentType):
+				case $ContentType == "json" || $ContentType == "JSON":
+					return json_encode($this->serializedResponse);
+				break;
+				
+				default:
+					exit("Not Supported yet...");
+				break;
+			endswitch;
+				
+			}
+			
+		}
 	
 	
 	private function execCurl($data = NULL, $contentType = NULL) {
@@ -245,5 +265,4 @@ class nmiThreeStep {
 		}
 	}
 }
-
 ?>

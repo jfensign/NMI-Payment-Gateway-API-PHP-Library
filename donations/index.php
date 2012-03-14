@@ -1,26 +1,48 @@
 <?php 
-require_once("classes/NMI-Three-Step-API.class.php");
-session_start();
+require_once("core/NMI-Three-Step-API.class.php");
 ?>
 
 <html>
 <head>
 <title>NMI Three-Step API Example</title>
-<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="assets/js/jquery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$(".donation_form_wrap").not("#start_transaction").hide();
+
+	$(".payment_form_toggle > a").click(function() {
+		if(!$(this).attr("onclick")) {
+		
+		$(".payment_form_toggle > a").css("borderBottom", "none");
+		
+		$(this).css("borderBottom", "2px solid #222");
+		
+		var divID = $(this).attr("href");
+		$(".donation_form_wrap").not(divID).hide();
+		
+		$(divID).show();
+		
+		} else {
+			return false;
+		}
+	});
+});
+</script>
 
 <script type="text/javascript">
 
 $(document).ready(function() {
 
 	$("#breadcrumb_wrap").hide();
-	//$(":input").not(":submit").attr("required", "required");
-	$("#set_amount").click(function() {
-		
-		$("#set_amount").after("<img src='assets/img/loading.gif' />");
-		//$("#start_transaction").hide();
-		$("#breadcrumb_wrap").show();
-		$("#billing_shipping_button").click();
 	
+	$("#set_amount").click(function() {
+		$("#breadcrumb_wrap").show();
+		$("#checkout_button").css("color", "#CCC");
+		$("#checkout_button").attr("onclick", "return false");
+		$("#billing_shipping_button").click();
 	}); 
 
 	//all forms except the final form can make xHTTP requests
@@ -37,17 +59,36 @@ $(document).ready(function() {
 		type: "post",
 		url: action,
 		data: SerializeData,
-		success: function (data) {
-			if(parseInt(data) === 1) {
+		success: function(data) {
+		var Doc = $.parseJSON(data),
+			$Result = Doc['result'];
+			
+			if(parseInt($Result) === 1) {
+				$formURL = Doc['form-url'];
+				$tokenID = Doc['token-id'];
+				
 				$("#payment_frame").attr("src", "html/CC_payment_info.php");
+				$("#checkout_button").removeAttr("onclick");
+				$("#checkout_button").css("color", "#D26911");
 				$("#checkout_button").click();
-			} else {
-				alert("An error occurred");
 			}
+				
 			return false;
-		}
-	})
+		
+			/* BELOW IS XML...
+			
+				var Doc = $.parseXML(data),
+				$XML = $(Doc);
+				$Result = $XML.find("result").text();
+				$ResultText = $XML.find("result-text").text();
+				$FormURL = $XML.find("form-url").text();
+				$TransactionId = $XML.find("transaction-id").text();
+			*/
+			
+			}
+	});
   });
+  
 });
 
 </script>
@@ -55,9 +96,7 @@ $(document).ready(function() {
 <style type="text/css">
 
   #donations_wrap {
-	width: 400px;
-	padding-left: auto;
-	padding-right: auto;
+	width: 415px;
 	margin: 0px auto 0px auto;
 	border: 1px solid #ccc;
 	border-radius: 5px 5px;
@@ -102,9 +141,10 @@ border-radius: 5px 5px 0 0;
   #breadcrumb_wrap {
 	/*margin-left: auto;
 	margin-right: auto;*/
-	margin-top: 5px;
+	margin-top: 10px;
 	padding-left: 15px;
-	width: 100%;
+	width: 415px;
+	margin-bottom: 15px;
   }
   
   .payment_form_toggle > a {
@@ -118,8 +158,9 @@ border-radius: 5px 5px 0 0;
 	float: left;
 	margin-right: 15px;
 	padding: 0;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	text-decoration: none;
+	padding: 0 3px 0 3px;
 }
   
 h3 {
@@ -203,17 +244,16 @@ box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   #shipping_billing_info_wrap>input[type="tel"],
   #shipping_billing_info_wrap>input[type="email"] {
 	width: 375px;
-	text-align: center;
+	text-align: left;
 	border-radius: 3px;
   }
   
   
   iframe {
-	margin-top: -30px;
-	padding-top: 0;
+	padding-top: 10px;
 	padding-left: 0;
 	width: 400px;
-	height: 400px;
+	min-height: 390px;
 	margin-left: auto;
 	margin-right: auto;
 	overflow: none;
@@ -236,17 +276,14 @@ box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 
 <div id="start_transaction" class="donation_form_wrap">
 <fieldset>
-	<form name="billing_shipping" id="start_transaction" method="POST" action="http://localhost/donations/StepOne.php">
+	<form name="billing_shipping" id="start_transaction" method="POST" action="StepOne.php/">
 		<label for="amount">Amount</label><br />
 		<input type="text" name="amount" required="required" />
 		<input type="button" name="billing_shipping_toggle" id="set_amount" value="Continue" />
 </fieldset>
 </div>
 <div id="billing_shipping" class="donation_form_wrap"><!--BEGIN BILLING SHIPPING DIV-->
-
 <fieldset>
-		<legend></legend>
-		<div id="shipping_billing_info_wrap" class="payment_form_field_wrap">
 		<label for="first-name">Firstname</label><br /><input type="text" name="first-name" id="payer_first-name" /><br />
 		<label for="last-name">Lastname</label><br /><input type="text" name="last-name" id="payer_lastname" /><br />
 		<label for="address1">Address</label><br /><input type="text" name="address1" id="payer_address1" /><br />
@@ -256,7 +293,6 @@ box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 		<label for="country">Country</label><br /><input type="text" name="country" id="payer_country" /><br />
 		<label for="email">Email</label><br /><input type="email" name="email" id="payer_email" /><br />
 		<label for="phone">Phone Number</label><br /><input type="tel" name="phone" id="payer_phone" /><br />
-		</div>
 		<input type="submit" name="STEP_ONE" id="stepOneSubmit" value="Proceed to Checkout" />
 		</form>
 </fieldset>
@@ -268,23 +304,6 @@ box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 </div><!-- END CHECKOUT DIV-->
 
 </div><!--END DONATIONS WRAP-->
-
-<script type="text/javascript">
-$(document).ready(function() {
-
-	$(".donation_form_wrap").not("#start_transaction").hide();
-
-	$(".payment_form_toggle > a").click(function() {
-		$(".payment_form_toggle > a").css("borderBottom", "none");
-		$(this).css("borderBottom", "1px solid #222");
-		
-		var divID = $(this).attr("href");
-		$(".donation_form_wrap").not(divID).hide();
-		
-		$(divID).show();
-	});
-});
-</script>
 
 </body>
 </html>

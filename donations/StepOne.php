@@ -1,18 +1,14 @@
 <?php
-session_start();
-require_once("classes/NMI-Three-Step-API.class.php");
-
+require_once("core/NMI-Three-Step-API.class.php");
 nmiThreeStep::__getInstance(array(
 						"userID" => null, //User
 						"password" => null,
-						"apiKey" => "657MvvHRPquyr44k7A8kE9Gu2N5x58ug", //API Key
+						"apiKey" => "API KEY HERE", //API Key
 						"gatewayURI" => "https://secure.nmi.com/api/v2/three-step", //Gateway URI
 						"redirectURI" => "http://localhost/donations/StepThree.php", //Redirect URI
-						"amount" => $_POST['amount'] //Sale Amount ... if NULL, it is assumed that this is a vault action
+						"amount" => @$_POST['amount'] //Sale Amount ... if NULL, it is assumed that this is a vault action
 						));
-?>
 
-<?php
 echo nmiThreeStep::__getInstance()->StepOne( 
 	array(
 		'transactionType' => array(
